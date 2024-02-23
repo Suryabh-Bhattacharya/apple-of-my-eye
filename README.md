@@ -1,5 +1,5 @@
 
-# apple-of-my-eye
+# NITT-ine
 Matchmaking at NITT
 # Problem Statement
 In NITT, there are many singles, and it's common for people to have crushes on one another. There's a possibility that someone you like may also have feelings for you. Our main aim is to facilitate matches between individuals in the NITT.
