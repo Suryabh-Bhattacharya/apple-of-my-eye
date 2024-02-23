@@ -1,0 +1,21 @@
+body{
+    background-color:rgb(191, 127, 247);
+    margin: 0;
+    padding: 0;
+    height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Brush Script MT', cursive;
+}
+.loginform{
+    width: 25vw;
+}
+
+.loginTitle{
+    font-family: 'Brush Script MT', cursive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10%;
+}
