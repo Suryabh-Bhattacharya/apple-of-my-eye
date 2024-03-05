@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const CrushdataSchema = new Schema({
-    isMatched: Boolean,
     crushNames:[{
         name:{
             type:String,
@@ -11,11 +10,12 @@ const CrushdataSchema = new Schema({
         rollno:{
             type:Number,
             required:true
-        },
-        userId:{
-            type: Schema.Types.ObjectId,
-            ref:'User'
         }
-    }]
+    }],
+    userId:{
+        type: Schema.Types.ObjectId,
+        ref : 'User',
+        required:true
+    }
 })
 module.exports = mongoose.model('Crush',CrushdataSchema);
