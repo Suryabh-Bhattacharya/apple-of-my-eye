@@ -1,21 +1,78 @@
-body{
-    background-color:rgb(191, 127, 247);
-    margin: 0;
-    padding: 0;
-    height: 70vh;
+.loginpage{
+    background: linear-gradient(180deg, #fde1ff 50%, #e1ffea22 100%);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: 'Brush Script MT', cursive;
+    gap: 30px;
+    height: 80vh;
 }
 .loginform{
-    width: 25vw;
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+h1.secTitle{
+    text-align: center;
+    color: #6B277B;
+}
+h1.mainTitle{
+    text-align: center;
+    font-family: "Crafty Girls", cursive;
+    font-weight: 600;
+    font-style: normal;
+    text-shadow: 5px 5px 5px #dccbcb;
 }
 
-.loginTitle{
-    font-family: 'Brush Script MT', cursive;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10%;
+::placeholder {
+    color: #212529;
+    font-family: "Dekko", cursive;
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
 }
+.mb-3{
+    width: 100%;
+}
+.form-control{
+    background-color: #fdfcfc;
+    /* background: transparent; */
+    text-align: center;
+    opacity: 1;
+    width: 100%;
+    border-radius: 15px;
+    border-width: 3px;
+    border-color:white;
+    height: 65px;
+    /* box-sizing: border-box; */
+}
+
+.btn{
+    font-family: "Dekko", cursive;
+    /* background: linear-gradient(180deg, #fde1ff 10%, #e1ffea22 100%); */
+    background: transparent;
+    color: #212529;
+    border-radius: 15px;
+    border-width: 3px;
+    border-color: white;
+    width: 40%;
+}
+.btn:hover{
+    background-color: #fde1ff;
+    color: #212529;
+    border-color: #fde1ff;
+}
+.btn:active{
+    background-color: #e1b7e4;
+    transform: scale(1.1);
+    color: #212529;
+    border-color: #fde1ff;
+}
+a{
+    text-decoration: none;
+    color: #6B277B;
+}
+
+
