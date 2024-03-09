@@ -1,0 +1,27 @@
+body {
+    /* background-color: #CCB7E0; */
+    background: linear-gradient(180deg, #ec6bf5 50%, #e1ffea22 100%);
+}
+
+.container {
+    background: linear-gradient(180deg, #ec6bf5 50%, #e1ffea22 100%);
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Make the container occupy the whole viewport height */
+    justify-content: center;
+    align-items: center;
+    color: #6B277B;
+    
+}
+
+.profile,
+.crushData,
+.result {
+    width: 100%;
+    text-align: center;
+    flex: 1; /* Make all child divs grow and occupy equal space */
+    margin: 10px; /* Add margin between the child divs */
+    border: 1px solid black; /* Optional: Add a border for better visualization */
+    overflow-y: auto; /* Add vertical scrollbar if content overflows */
+}
+
