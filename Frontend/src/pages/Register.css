@@ -1,0 +1,27 @@
+.register{
+    background: linear-gradient(180deg, #fde1ff 50%, #e1ffea22 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    height: 80vh;
+}
+.registerform{
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+.register .form-control{
+    text-align: center;
+}
+
+.content-right ul{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 50px;
+    list-style: none;
+}
