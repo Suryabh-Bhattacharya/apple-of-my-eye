@@ -1,14 +1,35 @@
-import React, { useState ,useEffect} from 'react'
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Alert from 'react-bootstrap/Alert';
+import React, { useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import "bootstrap/dist/css/bootstrap.min.css"
-import './Userdata.css'
+import "./Dashboard.css"
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
-export default function Userdata (){
+export default function Dashboard(){
     const navigate = useNavigate();
+    const [crushNames, setCrushNames] = useState([]);
+    const [isMatched,setIsMatched] = useState(false);
+    //user data
+    const [user,setUser] = useState(null);
+    const [rollNo,setRollNo] = useState();
+    const [phone,setPhone] = useState();
+    const [userName,setUserName] = useState("");
+    const [userDept,setUserDept] = useState("");
+    const [userGender,setUserGender] = useState("");
+    const [userBatch,setUserBatch] = useState("");
+
+    //error
+    const [error,setError] = useState(0);
+    //for Modal
+    const [alertmsg,setAlertmsg] = useState("");
+    const [show, setShow] = useState(false);
+    const [removeAlert,setRemoveAlert] = useState(false);//to use whether or not to show the button on running api call
+    //saving crush Data
+    const [crushId,setCrushId] = useState();
+    const [crushNAME,setCrushNAME] = useState("");
+    const [crushRollNo , setCrushRoll] = useState("");
+    const [crushDept,setCrushDept] = useState("");
+    const [crushBatch,setCrushBatch] = useState("");
+    //use effect code that has user auth
     useEffect(()=>{
         async function userAuth(){
             try{
@@ -18,17 +39,45 @@ export default function Userdata (){
                         "auth-token":JSON.parse(localStorage.getItem('token')),
                     }
                 });
-
                 if(!result){
                     navigate('/login');
                 }
-                
                 result = await result.json();
-
+                // console.log(result);
                 if(!(result.status==='ok')){
                     navigate('/login');
                 }
-                // console.log(result)
+                const crushDataFromDb = [];
+                if(!(result.user)){
+                    return ;
+                }
+                if(result.user){
+                    setUser(result.user._id);
+                    setIsMatched(result.user.isMatched);
+                    setRollNo(result.user.rollNo);
+                    setCrushId(result.user.crushId);
+                    setPhone(result.user.phoneNumber);
+                }
+                if(result.userData){
+                    setUserName(result.userData.Name);
+                    setUserBatch(result.userData.Batch);
+                    setUserDept(result.userData.Branch);
+                    setUserGender(result.userData.Gender);
+                }
+                if(result.user.crush){
+                    setCrushNAME(result.crush[0].name);
+                    setCrushRoll(result.crush[0].rollno);
+                    setCrushDept(result.crush[0].dept);
+                    setCrushBatch(result.crush[0].batch);
+                }
+                if(result.crushdata){
+                    const lst = result.crushdata.crushNames;
+                    for(let i=0;i<lst.length;i++){
+                        const item = lst[i];
+                        crushDataFromDb.push({'Name':item.name,'RollNo':item.rollno})
+                    }
+                    setCrushNames(crushDataFromDb);
+                }
             }catch(error){
                 console.log("Error Authenticating user",error);
                 navigate('/login');
@@ -36,127 +85,124 @@ export default function Userdata (){
         }
         userAuth();
     },[]);
-    const [crushNames, setCrushNames] = useState([]);
-    const [newName, setNewName] = useState();
-    const [show, setShow] = useState(0);
-    const [empty,setEmpty] = useState(0);//use to give alert that input cannot be empty
-    const [prefix, setPrefix] = useState('');
-    const [nameList, setNameList] = useState([]);
-//to setnew name as object
-    function handleSetNewName(name,data){
-        setNewName({'Name':name,'RollNo':data.rollno});
+
+    const handleClose = () => {
+        setShow(false);
+        setAlertmsg("");
+        window.location.reload();//reloading the page
     }
-    //adding names
-    async function addCrushNames(event){
-        event.preventDefault();
-        console.log("sent request to add names to database");
-        const response = await fetch('http://localhost:5000/api/addCrushNames',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
-            },
-            body: JSON.stringify({
-                authToken :JSON.parse(localStorage.getItem('token')),
-                crushData:crushNames
-            })
-        })
-        if(response){
-            navigate('/dashboard');
-        }
-        navigate('/Userdata');
+    const confirmremoveMatch = ()=>{
+        setAlertmsg("Confirm to Remove the Match");
+        setRemoveAlert(1);//this brings that extra button inside the modal so that we can do api call
+        setShow(1);
+    } 
+    function alertModal(){
+        if(alertmsg==="") return ;
+        return (<>
+            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
+                <Modal.Header closeButton>
+                <Modal.Title>{alertmsg}</Modal.Title>
+                </Modal.Header>
+                {removeAlert ? (<Modal.Footer><Button variant="info" onClick={removeMatch}>Confirm</Button></Modal.Footer>):(<></>)}
+                
+            </Modal>
+        </>)
     }
-//it handles from getting suggestion to setting prefix
-    const handleInputChange = async (e) => {
-        const prefix = e.target.value;
-        setPrefix(prefix);
-        if(prefix.length>2){
-            try {
-                const response = await fetch(`http://localhost:5000/api/suggestions?query=${prefix}`)
-                const data = await response.json();
-                if(data.status === 'ok'){
-                    // console.log(data.names);
-                    setNameList(data.names);
-                    console.log("got all suggestions with prefix")
+
+    const getMatch = async ()=>{
+        try{
+            console.log("Api request send for getting match")
+            const response = await fetch('http://localhost:5000/api/getMatch',{
+                headers:{
+                    "auth-token":JSON.parse(localStorage.getItem('token')),
                 }
-            } catch (error) {
-                console.error('Error fetching names:', error);
-            }
-        }
-        else{
-            setNameList([]);
-        }
-    };
-//adding and deleting stuff
-    const handleAddName = () => {
-        console.log(newName);
-        if (newName && crushNames.length < 4) {
-            setCrushNames([...crushNames, newName]);
-            setNewName();
-        }
-        else{
-            if(!newName){
-                setEmpty(1);
+            });
+            // console.log(response);
+            const data = await response.json();
+            console.log(data);
+            if(data.status==='ok'){
+                console.log(data.msg );
+                setAlertmsg(data.msg+ " Try Refreshing the page");
+                setShow(true);
             }
             else{
-                setShow(1);
+                setAlertmsg(data.msg);
+                setShow(true);
             }
+
+        }catch(error){
+            console.log("error",error);
         }
-        setNewName();
-    };
-
-    const handleDeleteName = (index) => {
-        const updatedNames = [...crushNames];
-        updatedNames.splice(index, 1);
-        setCrushNames(updatedNames);
-    };
-
-    function alertFunc(){
-        return (<Alert variant="danger" onClose={()=>setShow(0)}  dismissible>
-          <p>You can add atmost 4 names</p>
-      </Alert>);
-    }
-    function alertforEmpty(){
-        return (<Alert variant="danger" onClose={()=>setEmpty(0)}  dismissible>
-          <p>select names from dropdown</p>
-      </Alert>);
-    }
-
-
-  return (
+    } 
     
-    <div className='info'>
-        {show ? (alertFunc()):(<></>)}
-        {empty ? (alertforEmpty()):(<></>)}
-        <Form onSubmit={addCrushNames} className='infoform'>
-            <h1>Add Crush Names</h1>
-            <Form.Group className="mb-3" controlId="ControlTextarea4">
-                <Form.Control type='text'
-                    placeholder='Enter crush name'
-                    value={prefix}
-                    onChange={handleInputChange}
-                />
-            </Form.Group>
-            <Form.Select onChange={(e) => handleSetNewName(e.target.value, e.target.selectedOptions[0].dataset)}>
-                <option value={""}>Select names from dropdown</option>
-                    {nameList.map((data, index) => (
-                        <option key={index} value={data.Name} data-rollno={data.RollNo}>
-                            {"Name:"}{data.Name}{"/"}{"RollNo:"}{data.RollNo}{"/"}{"Dept:"}{data.Branch}{"/"}{"Batch:"}{}
-                        </option>
-                    ))}
-            </Form.Select>
-            <Button variant="primary" onClick={handleAddName}>Add</Button>
-            <br></br>
-            <ListGroup as="ol" numbered>
-                {crushNames.map((data,index)=>(
-                    <ListGroup.Item as="li" key={index} variant='info' className='list-item'>
-                        Name:{data.Name}/RollNo:{data.RollNo}   
-                        <Button variant="danger" onClick={() => handleDeleteName(index)}>Delete</Button>
-                    </ListGroup.Item>
-                    
+    const removeMatch = async ()=>{
+        setShow(false);
+        setAlertmsg("");
+        setRemoveAlert(false);
+        console.log("Api request send for getting match")
+        try{
+            const response = await fetch('http://localhost:5000/api/removeMatch',{
+                headers:{
+                    "auth-token":JSON.parse(localStorage.getItem('token')),
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+            if(data.status==='ok'){
+                console.log(data.msg );
+                setAlertmsg(data.msg+ " Try Refreshing the page");
+                setShow(true);
+            }
+            else{
+                setAlertmsg(data.msg);
+                setShow(true);
+            }
+        }catch(error){
+            console.log(error);
+        }
+        console.log("removed");
+    }
+    const handleUpdate =()=>{
+        navigate('/Userdata');
+    }
+    const handleLogout = ()=>{
+        localStorage.removeItem('token');
+        navigate('/login');
+    }
+    const handleHome =()=>{
+        navigate('/');
+    }
+    return (
+        <div className='container'>
+            {alertModal()}
+            <div className='profile'>
+                <h2>My Profile</h2>
+                <p className='rollNO'>Roll No: {rollNo}</p>
+                <p className='phone'>Mobile Number: {phone}</p>
+                <p>Name : {userName}</p>
+                <p>Department : {userDept}</p>
+                <p>Batch : {userBatch}</p>
+                <p>Gender : {userGender}</p>
+
+            </div>
+            <div className='crushData'>
+                <h2>My Crush List</h2>
+                <ol>
+                {crushNames.map((item,index)=>(
+                    // <li id={index} key={index}>Name: {item.Name}, Roll No: {item.RollNo}</li>
+                    <p id={index} key={index}>Name: {item.Name}, Roll No: {item.RollNo}</p>
                 ))}
-            </ListGroup>
-            <Button variant="success" type="submit">Submit</Button>
-        </Form>
-    </div>
-  )
+                </ol>
+                <Button variant='info' className='button' onClick={handleUpdate}>Update</Button>
+            </div>
+            <div className='result'>
+                <h2>result content</h2>
+                {isMatched ? (`"Your Match :${crushNAME} roll:${crushRollNo} from ${crushDept} Batch:${crushBatch}"`):("Match not Found")}
+                <br></br>
+                {isMatched ? (<Button variant='info' className='button' onClick={confirmremoveMatch}>remove Match</Button>):(<Button variant='info' className='button' onClick={getMatch}> Get Match</Button>)}
+            </div>
+            <Button variant='info' className='button' onClick={handleLogout}>Logout</Button>
+            <p><a href="/">Home</a></p>
+        </div>
+    )
 }
