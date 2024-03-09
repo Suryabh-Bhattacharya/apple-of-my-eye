@@ -3,13 +3,11 @@ import {useNavigate} from 'react-router-dom'
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
 import "bootstrap/dist/css/bootstrap.min.css"
-import './Login.css'
+import './Register.css'
 
 function Register() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
   const [rollNo, setRollNo] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -50,7 +48,7 @@ function Register() {
 
     const data = await response.json();
     if(data.status === 'ok'){
-      navigate('/dashboard',{replace:true});
+      navigate('/login',{replace:true});
     }
     // console.log(data);
   }
@@ -92,7 +90,7 @@ function Register() {
       setAlerttype("danger")
       setAlertmsg(data.msg);
       setErr(true);
-      navigate('/login',{replace:true});
+      navigate('/register',{replace:true});
     }
     else{
       setAlerttype("success")
@@ -102,35 +100,41 @@ function Register() {
   }
 
   return (
-    <div>
+    <div className='register'>
       {!err ? (<></>):(alertFunc())}
-      <Form onSubmit={registerUser} className='loginform'>
-      <div className='loginTitle'><h1>Register</h1></div>
+      <Form onSubmit={registerUser} className='registerform'>
+      <div className='registerTitle'>
+          <h1 className='mainTitle'>NITT-ine</h1>
+          <h1 className='secTitle'>Register</h1>
+      </div>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>RollNo</Form.Label>
-          <Form.Control type="number" 
+          {/* <Form.Label>RollNo</Form.Label> */}
+          <Form.Control type="text" 
           placeholder="Enter RollNo" 
           value={rollNo}
+          maxLength="9"
           onChange={(e)=>setRollNo(e.target.value)}
           required
           />
         </Form.Group>
         <Form.Group className="mb-3" controlId="">
-          <Form.Label>Phone Number</Form.Label>
+          {/* <Form.Label>Phone Number</Form.Label> */}
           <Form.Control 
           type="tel" 
           placeholder="without +91" 
+          maxLength="10"
           value={phoneNumber}
           onChange={(e)=>setPhoneNumber(e.target.value)}
           required
           />
         </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+          {/* <Form.Label>Password</Form.Label> */}
           <Form.Control 
           type="password" 
           placeholder="Password" 
           value={password}
+          minLength="7"
           onChange={(e)=>setPassword(e.target.value)} 
           required/>
         </Form.Group>
@@ -139,11 +143,11 @@ function Register() {
             Get Otp
           </Button>
         ):(
-          <div>
+          <div className='resisterform'>
           <Form.Group className="mb-3" controlId="">
             <Form.Label>OTP</Form.Label>
             <Form.Control 
-            type="number" 
+            type="text" 
             placeholder="OTP" 
             value={otp}
             onChange={(e)=>setOpt(e.target.value)}
