@@ -3,12 +3,24 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
+import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css"
 import './Userdata.css'
 
 export default function Userdata (){
     const navigate = useNavigate();
+    const [userGender,setUserGender] = useState('');
+    const [crushNames, setCrushNames] = useState([]);
+    const [newName, setNewName] = useState();
+    const [show, setShow] = useState(0);//for alert
+    const [empty,setEmpty] = useState(0);//use to give alert that input cannot be empty
+    //for getting data inside dropdown
+    const [prefix, setPrefix] = useState('');
+    const [nameList, setNameList] = useState([]);
+    //for Modal
+    const [alertmsg,setAlertmsg] = useState("");
+    const [showModal,setShowModal] = useState(false);
     useEffect(()=>{
         async function userAuth(){
             try{
@@ -24,11 +36,23 @@ export default function Userdata (){
                 }
                 
                 result = await result.json();
-
+                console.log(result);
                 if(!(result.status==='ok')){
                     navigate('/login');
                 }
-                // console.log(result)
+                if(result.userData){
+                    setUserGender(result.userData.Gender);
+                }
+                const crushDataFromDb = [];
+                if(!(result.crushdata)){
+                    return ;
+                }
+                const lst = result.crushdata.crushNames;
+                for(let i=0;i<lst.length;i++){
+                    const item = lst[i];
+                    crushDataFromDb.push({'Name':item.name,'RollNo':item.rollno})
+                }
+                setCrushNames(crushDataFromDb);
             }catch(error){
                 console.log("Error Authenticating user",error);
                 navigate('/login');
@@ -36,12 +60,22 @@ export default function Userdata (){
         }
         userAuth();
     },[]);
-    const [crushNames, setCrushNames] = useState([]);
-    const [newName, setNewName] = useState();
-    const [show, setShow] = useState(0);
-    const [empty,setEmpty] = useState(0);//use to give alert that input cannot be empty
-    const [prefix, setPrefix] = useState('');
-    const [nameList, setNameList] = useState([]);
+    //modal
+    function alertModal(){
+        if(alertmsg==="") return ;
+        return (<>
+            <Modal show={showModal} onHide={handleClose} backdrop="static" keyboard={false}>
+                <Modal.Header closeButton>
+                <Modal.Title>{alertmsg}</Modal.Title>
+                </Modal.Header>
+            </Modal>
+        </>)
+    }
+    //handleClose for Modal
+    const handleClose = ()=>{
+        setShowModal(false);
+        setAlertmsg("");
+    }
 //to setnew name as object
     function handleSetNewName(name,data){
         setNewName({'Name':name,'RollNo':data.rollno});
@@ -60,8 +94,16 @@ export default function Userdata (){
                 crushData:crushNames
             })
         })
-        if(response){
-            navigate('/dashboard');
+        const data = await response.json();
+        if(data.status==="ok"){
+            console.log(data.msg);
+            setAlertmsg(data.msg);
+            setShowModal(1);
+            // navigate('/dashboard',{replace:true});
+        }
+        else{
+            setAlertmsg(data.msg);
+            setShowModal(1);
         }
         navigate('/Userdata');
     }
@@ -71,7 +113,7 @@ export default function Userdata (){
         setPrefix(prefix);
         if(prefix.length>2){
             try {
-                const response = await fetch(`http://localhost:5000/api/suggestions?query=${prefix}`)
+                const response = await fetch(`http://localhost:5000/api/suggestions?query=${prefix}&gender=${userGender}`)
                 const data = await response.json();
                 if(data.status === 'ok'){
                     // console.log(data.names);
@@ -88,7 +130,7 @@ export default function Userdata (){
     };
 //adding and deleting stuff
     const handleAddName = () => {
-        console.log(newName);
+        // console.log(newName);
         if (newName && crushNames.length < 4) {
             setCrushNames([...crushNames, newName]);
             setNewName();
@@ -120,11 +162,13 @@ export default function Userdata (){
           <p>select names from dropdown</p>
       </Alert>);
     }
-
-
+    const handleDashboard =()=>{
+        navigate('/Userdata');
+    }
   return (
     
     <div className='info'>
+        {alertModal()}
         {show ? (alertFunc()):(<></>)}
         {empty ? (alertforEmpty()):(<></>)}
         <Form onSubmit={addCrushNames} className='infoform'>
@@ -146,6 +190,7 @@ export default function Userdata (){
             </Form.Select>
             <Button variant="primary" onClick={handleAddName}>Add</Button>
             <br></br>
+            <p>Crush List (Priority Matter's)</p>
             <ListGroup as="ol" numbered>
                 {crushNames.map((data,index)=>(
                     <ListGroup.Item as="li" key={index} variant='info' className='list-item'>
@@ -156,6 +201,7 @@ export default function Userdata (){
                 ))}
             </ListGroup>
             <Button variant="success" type="submit">Submit</Button>
+            <p> <a href='/Dashboard'>Dashboard</a></p>
         </Form>
     </div>
   )
