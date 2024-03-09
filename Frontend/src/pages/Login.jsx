@@ -39,7 +39,7 @@ export default function Login() {
     const data = await response.json();
 
     if(data.status === 'ok'){
-      console.log(data.authtoken);
+      // console.log(data.authtoken);
       localStorage.setItem('token',JSON.stringify(data.authtoken));
       // localStorage.setItem('user',JSON.stringify(data.id));
       navigate('/dashboard',{replace:true})
@@ -54,7 +54,7 @@ export default function Login() {
       setAlertmsg("User Not Registered");
       setErr(1);
     }
-    console.log(data);
+    // console.log(data);
   }
 
   function alertFunc(){
@@ -64,23 +64,27 @@ export default function Login() {
   }
 
   return (
-    <div>
+    <div className='loginpage'>
       <Form onSubmit={loginUser} className='loginform'>
       {!err ? (<></>):(alertFunc())}
-      <div className='loginTitle'><h1>Login</h1></div>
+      <div className='loginTitle'>
+        <h1 className='mainTitle'>NITT-ine</h1>
+        <h1 className='secTitle'>Sign In</h1>
+      </div>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Roll No</Form.Label>
+          {/* <Form.Label>Roll No</Form.Label> */}
           <Form.Control 
           type="rollNo" 
           placeholder="Roll No" 
           value={rollNo}
+          maxLength="9"
           onChange={(e)=>setRollno(e.target.value)}
           required
           />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+          {/* <Form.Label>Password</Form.Label> */}
           <Form.Control 
           type="password" 
           placeholder="Password" 
@@ -96,6 +100,7 @@ export default function Login() {
         </Button>
         <br />
         <p>not yet registered,<a href='/register'>Register Here</a></p>
+        <p>If Signed In --<a href='/Dashboard'>Dashboard</a></p>
       </Form>
     </div>
   )
